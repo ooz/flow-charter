@@ -6,8 +6,12 @@ const React = require('react');
 const ReactDOM = require('react-dom');
 const ChartJS = require('chart.js');
 const jsonfile = require('jsonfile');
+const moment = require('moment');
 
-import TagsInput from 'react-tagsinput'
+import TagsInput from 'react-tagsinput';
+const DatePicker = require('react-datepicker');
+import Autosuggest from 'react-autosuggest';
+const Slider = require('rc-slider');
 
 const packagejson = require('./package.json');
 
@@ -154,11 +158,18 @@ class Content extends React.Component {
   }
 }
 
+const RATING_MARKS = {0.0: "0%", 0.1: "10%", 0.2: "20%", 0.3: "30%", 0.4: "40%", 0.5: "50%", 0.6: "60%", 0.7: "70%", 0.8: "80%", 0.9: "90%", 1.0: "100%"}
 class DataInput extends React.Component {
   constructor() {
       super()
       this.state = {
-          teams: []
+          teams: [],
+          ratings: {},
+          ratingUser: "",
+          ratingDate: moment(),
+          ratingSkill: 0.5,
+          ratingChallenge: 0.5,
+          ratingComment: ""
       }
   }
   onTeamsChange(teams) {
@@ -204,17 +215,117 @@ class DataInput extends React.Component {
       }
       return items;
   }
+  onDateChanged(date) {
+      this.setState({ratingDate: date});
+  }
+  onUserChanged(event, { newValue }) {
+      console.log("New member value: " + newValue);
+  }
+  getUserSuggestions() {
+      var users = []
+      for (var team in this.state) {
+          if (this.state.hasOwnProperty(team) && team.startsWith("_")) {
+              users.push(...this.state[team]);
+          }
+      }
+      // Unique users
+      users = [...(new Set(users))].sort();
+      return users;
+  }
+  addUserRating() {
+    console.log("Rating added!");
+  }
+  onSkillChanged(skill) {
+    this.setState({ratingSkill: skill});
+  }
+  onChallengeChanged(challenge) {
+    this.setState({ratingChallenge: challenge});
+  }
+  buildRatingInputs() {
+      let items = []
+      items.push(<UserInput key="userInput" suggestions={this.getUserSuggestions()} />)
+      // items.push(<UserInput key="userInput" suggestions={["Oliver", "Olaf", "Foo", "Friedrich"]} onChange={this.onUserChanged.bind(this)} />)
+      items.push(<DatePicker key="datePicker" className="form-control" dateFormat="YYYY/MM/DD" showYearDropdown showMonthDropdown locale="en-gb" selected={this.state.ratingDate} onChange={this.onDateChanged.bind(this)} />);
+      items.push(<h4 key="h4Skill" style={{marginTop: "40px"}}>Skill</h4>);
+      items.push(<Slider key="sliderSkill" min={0.0} max={1.0} step={0.05} value={this.state.ratingSkill} marks={RATING_MARKS} onChange={this.onSkillChanged.bind(this)} />);
+      items.push(<h4 key="h4Challenge" style={{marginTop: "40px"}}>Challenge</h4>);
+      items.push(<Slider key="sliderChallenge" min={0.0} max={1.0} step={0.05} value={this.state.ratingChallenge} marks={RATING_MARKS} onChange={this.onChallengeChanged.bind(this)} />);
+      items.push(<h4 key="h4Comment" style={{marginTop: "40px"}}>Comment</h4>);
+      items.push(<textarea key="commentInput" className="form-control" />);
+      items.push(<button key="btnRate" className="btn btn-primary" onClick={this.addUserRating.bind(this)}>Rate</button>);
+      return items;
+  }
   render() {
     var props = {className: 'react-tagsinput-input', placeholder: '+ team'};
     return (
       <div>
         <h2>Data</h2>
+        <h3>Ratings</h3>
+        { this.buildRatingInputs() }
+        <hr />
         <h3>Teams</h3>
         <TagsInput key="teamsInput" value={this.state.teams} onChange={this.onTeamsChange.bind(this)} inputProps={props} onlyUnique />
         { this.buildTeamInputs() }
-        <h3>Ratings</h3>
-
       </div>
+    );
+  }
+}
+
+class UserInput extends React.Component {
+  constructor() {
+    super();
+
+    this.state = {
+      value: '',
+      suggestions: []
+    };
+  }
+  getSuggestions(value) {
+    const inputValue = value.trim().toLowerCase();
+    const inputLength = inputValue.length;
+
+    return inputLength === 0 ? [] : this.props.suggestions.filter(member =>
+      member.toLowerCase().slice(0, inputLength) === inputValue
+    );
+  };
+  onSuggestionsFetchRequested = ({value}) => {
+    this.setState({
+      suggestions: this.getSuggestions(value)
+    });
+  };
+  onSuggestionsClearRequested = () => {
+    this.setState({
+      suggestions: []
+    });
+  }
+  onUserChanged(event, { newValue }) {
+    this.setState({ value: newValue });
+  }
+  render() {
+    const inputProps = {
+      placeholder: 'Member to rate',
+      value: this.state.value,
+      onChange: this.onUserChanged.bind(this)
+    };
+    const theme = {
+      container: 'autosuggest dropdown',
+      containerOpen: 'dropdown open',
+      input: 'form-control',
+      suggestionsContainer: 'dropdown-menu',
+      suggestion: 'list-group-item',
+      suggestionFocused: 'bg-primary active',
+      suggestionsList: 'list-group',
+    };
+    return (
+      <Autosuggest
+        theme={theme}
+        suggestions={this.state.suggestions}
+        onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
+        onSuggestionsClearRequested={this.onSuggestionsClearRequested}
+        getSuggestionValue={(sug) => sug}
+        renderSuggestion={(sug) => (<div>{sug}</div>)}
+        inputProps={inputProps}
+      />
     );
   }
 }

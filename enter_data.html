@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Flow Charter</title>
+
+    <link rel="stylesheet" href="photon/css/photon.min.css">
+  </head>
+  <body>
+    <div class="window">
+      <div class="window-content">
+        <div class="pane-group">
+          <div class="pane-mini sidebar">
+            <header class="toolbar toolbar-header">
+              <h1 class="title">Flow Charter</h1>
+            </header>
+            <div class="padded-more">
+              <a href="index.html">Charts</a><br>
+              <a href="enter_data.html">Data</a>
+            </div>
+          </div>
+          <div class="pane padded-more">
+            <h1>Data</h1>
+            <div>
+              <button onclick="saveData()">Save</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script>
+    let data = {"foo" : 1, "bar" : "baz"}
+    let data_file = "flow_charter_data.json"
+
+    function saveData() {
+      var jsonfile = require('jsonfile')
+
+      jsonfile.writeFile(data_file, data, function (err) {
+        console.error(err)
+      })
+    }
+  </script>
+</html>

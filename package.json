@@ -1,0 +1,23 @@
+{
+  "name": "flow-charter",
+  "version": "1.0.0",
+  "description": "View and manage Flow Charts",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": "https://github.com/ooz/flow-charter",
+  "keywords": [
+    "Flow Chart"
+  ],
+  "author": "Oliver Zscheyge",
+  "license": "MIT",
+  "dependencies": {
+    "electron": "^1.4.1",
+    "jsonfile": "^2.4.0",
+    "react": "^15.4.0",
+    "react-dom": "^15.4.0",
+    "react-tagsinput": "^3.14.0",
+    "chart.js": "^2.4.0"
+  }
+}

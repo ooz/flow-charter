@@ -1,0 +1,68 @@
+{
+    "version": "1.0.0",
+    "users": [
+        "A Foo",
+        "O Bar",
+        "F Baz",
+        "M Bob"
+    ],
+    "teams": [{
+        "name": "foobars",
+        "users": [
+            "A Foo",
+            "O Bar"
+        ]
+    }, {
+        "name": "bobfoos",
+        "users": [
+            "F Baz",
+            "M Bob"
+        ]
+    }],
+    "ratings": {
+        "O Bar": [{
+            "date": "2016-01-12",
+            "competence": 0.5,
+            "workload": 0.5,
+            "comment": "Test"
+        }, {
+            "date": "2016-12-13",
+            "competence": 0.7,
+            "workload": 0.6,
+            "comment": "Test two"
+        }],
+        "A Foo": [{
+            "date": "2016-12-12",
+            "competence": 0.5,
+            "workload": 0.5,
+            "comment": "Test2"
+        }, {
+            "date": "2016-12-13",
+            "competence": 0.9,
+            "workload": 0.9,
+            "comment": "Test two2"
+        }],
+        "F Baz": [{
+            "date": "2016-12-12",
+            "competence": 0.5,
+            "workload": 0.5,
+            "comment": "Test"
+        }, {
+            "date": "2016-12-13",
+            "competence": 0.7,
+            "workload": 0.6,
+            "comment": "Test two"
+        }],
+        "M Bob": [{
+            "date": "2015-12-12",
+            "competence": 0.6,
+            "workload": 0.6,
+            "comment": "Test2"
+        }, {
+            "date": "2016-12-13",
+            "competence": 0.9,
+            "workload": 0.9,
+            "comment": "Test two2"
+        }]
+    }
+}

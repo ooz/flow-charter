@@ -39,46 +39,46 @@ let data = {
     "ratings": {
         "O Bar": [{
             "date": "2016-01-12",
-            "competence": 0.5,
-            "workload": 0.5,
+            "skill": 0.5,
+            "challenge": 0.5,
             "comment": "Test"
         }, {
             "date": "2016-12-13",
-            "competence": 0.7,
-            "workload": 0.6,
+            "skill": 0.7,
+            "challenge": 0.6,
             "comment": "Test two"
         }],
         "A Foo": [{
             "date": "2016-12-12",
-            "competence": 0.5,
-            "workload": 0.5,
+            "skill": 0.5,
+            "challenge": 0.5,
             "comment": "Test2"
         }, {
             "date": "2016-12-13",
-            "competence": 0.9,
-            "workload": 0.9,
+            "skill": 0.9,
+            "challenge": 0.9,
             "comment": "Test two2"
         }],
         "F Baz": [{
             "date": "2016-12-12",
-            "competence": 0.5,
-            "workload": 0.5,
+            "skill": 0.5,
+            "challenge": 0.5,
             "comment": "Test"
         }, {
             "date": "2016-12-13",
-            "competence": 0.7,
-            "workload": 0.6,
+            "skill": 0.7,
+            "challenge": 0.6,
             "comment": "Test two"
         }],
         "M Bob": [{
             "date": "2015-12-12",
-            "competence": 0.6,
-            "workload": 0.6,
+            "skill": 0.6,
+            "challenge": 0.6,
             "comment": "Test2"
         }, {
             "date": "2016-12-13",
-            "competence": 0.9,
-            "workload": 0.9,
+            "skill": 0.9,
+            "challenge": 0.9,
             "comment": "Test two2"
         }]
     }
@@ -137,10 +137,10 @@ class Content extends React.Component {
       return (
         <div>
           <h2>Welcome to Flow Charter!</h2>
-          <p>Flow Charter lets you track the competence and workload distributions of your teams. <br /> <br />
+          <p>Flow Charter lets you track the skill and challenge distributions of your teams. <br /> <br />
           v{packagejson.version} by Oliver Zscheyge</p>
           <h3>Instructions</h3>
-          <p>What is workload? What is competence?</p>
+          <p>What is challenge? What is skill?</p>
           <ul><li>Foo</li><li>Bar</li></ul>
           <h3>Known Issues</h3>
           <ul>
@@ -238,9 +238,9 @@ const CHART_OPTIONS = {
               comment = dataItems[0].comment;
               date = dataItems[0].date;
             }
-            var nameValues = data.datasets[tooltipItem.datasetIndex].label + ", C: " + tooltipItem.xLabel + ", W: " + tooltipItem.yLabel;
+            var nameValues = data.datasets[tooltipItem.datasetIndex].label + ", S: " + tooltipItem.xLabel + ", C: " + tooltipItem.yLabel;
             if (date !== "") {
-              nameValues = date + " " + data.datasets[tooltipItem.datasetIndex].label + ", C: " + tooltipItem.xLabel + ", W: " + tooltipItem.yLabel;
+              nameValues = date + " " + data.datasets[tooltipItem.datasetIndex].label + ", S: " + tooltipItem.xLabel + ", C: " + tooltipItem.yLabel;
             }
             if (comment === "") {
                 return nameValues;
@@ -259,7 +259,7 @@ const CHART_OPTIONS = {
             },
             scaleLabel: {
               display: true,
-              labelString: "Competence",
+              labelString: "Skill (S)",
               fontColor: "#000",
               fontSize: 16
             }
@@ -275,7 +275,7 @@ const CHART_OPTIONS = {
             },
             scaleLabel: {
               display: true,
-              labelString: "Workload",
+              labelString: "Challenge (C)",
               fontColor: "#000",
               fontSize: 16
             }
@@ -342,7 +342,7 @@ class Diagram extends React.Component {
           for (let i = 0; i < members.length; ++i) {
             var memberName = members[i];
             var memberRatings = data.ratings[memberName];
-            var memberData = memberRatings.map(r => {return {x: r.competence, y: r.workload, r: 10, comment: r.comment, date: r.date}});
+            var memberData = memberRatings.map(r => {return {x: r.skill, y: r.challenge, r: 10, comment: r.comment, date: r.date}});
             memberData = this.filterByTime(memberData, year, month);
             var color = COLORS[i % COLORS.length];
             datasets.push({label: memberName, data: memberData, backgroundColor: color, hoverBackgroundColor: color});
@@ -354,7 +354,7 @@ class Diagram extends React.Component {
         var userName = user[0];
         var datasets = [];
         var memberRatings = data.ratings[userName];
-        var memberData = memberRatings.map(r => {return {x: r.competence, y: r.workload, r: 10, comment: r.comment, date: r.date}});
+        var memberData = memberRatings.map(r => {return {x: r.skill, y: r.challenge, r: 10, comment: r.comment, date: r.date}});
         memberData = this.filterByTime(memberData, year, month);
         var color = COLORS[0];
         datasets.push({label: userName, data: memberData, backgroundColor: userColor, hoverBackgroundColor: userColor});

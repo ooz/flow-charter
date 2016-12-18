@@ -5,6 +5,7 @@
 const React = require('react');
 const ReactDOM = require('react-dom');
 const ChartJS = require('chart.js');
+const jsonfile = require('jsonfile');
 
 import TagsInput from 'react-tagsinput'
 
@@ -460,6 +461,7 @@ class Diagram extends React.Component {
         );
     }
 }
+
 class FlowCharter extends React.Component {
   constructor() {
    super();
@@ -478,8 +480,6 @@ class FlowCharter extends React.Component {
 ReactDOM.render(<FlowCharter />, document.getElementById('root'));
 
 function saveData() {
-  var jsonfile = require('jsonfile')
-
   jsonfile.writeFile(data_file, data, function (err) {
     console.error(err)
   })

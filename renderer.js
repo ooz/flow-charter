@@ -331,7 +331,7 @@ class UserInput extends React.Component {
 }
 
 const CHART_STYLE = {
-    background: "linear-gradient(135deg, red, red, green, red, red)"
+    background: "linear-gradient(135deg, red, orange, orange, green, orange, orange, red)"
 }
 const CHART_OPTIONS = {
     legend: {

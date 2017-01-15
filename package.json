@@ -1,5 +1,6 @@
 {
   "name": "flow-charter",
+  "productName": "Flow Charter",
   "version": "1.0.0",
   "description": "View and manage Flow Charts",
   "main": "main.js",

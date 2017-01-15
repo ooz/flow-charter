@@ -2,7 +2,10 @@
 // be executed in the renderer process for that window.
 // All of the Node.js APIs are available in this process.
 
-// const {remote} = require('electron')
+// Build the menu
+const remote = require('electron').remote;
+const appMenu = remote.Menu;
+const dialog = remote.dialog;
 // const {Menu, MenuItem} = remote
 
 const React = require('react');
@@ -16,6 +19,8 @@ const DatePicker = require('react-datepicker');
 import Autosuggest from 'react-autosuggest';
 const Slider = require('rc-slider');
 
+const notifier = require('electron-notifications')
+
 const packagejson = require('./package.json');
 
 const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dez"]
@@ -23,7 +28,10 @@ const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Se
 const COLORS = ["#FFC0CB", "#800080", "#DC143C", "#FFA500", "#FFFF00", "#ADFF2F", "#00FFFF", "#000080", "#A0522D", "#FFFAFA", "#808080"]
 ChartJS.defaults.global.defaultFontColor = "#000000";
 
-let data_file = "flow_charter_data.json"
+const NOTIFIER_OPTIONS = {
+}
+
+let dataFile;
 
 const usedYears = (data, returnUsedMonths = 0) => {
     var ratings = getRatings(data);
@@ -555,71 +563,93 @@ class Diagram extends React.Component {
     }
 }
 
+var getData;
+var setData;
+var self;
+
+function _updateTeams(team) {
+    var teams = this.teams;
+    if (Array.isArray(team)) {
+      // Update team list
+      var newTeams = [];
+      for (let i = 0; i < team.length; ++i) {
+        var teamName = team[i];
+        var oldTeam = teams.filter(t => t.name == teamName);
+        var newUsers = [];
+        if (oldTeam.length === 1) {
+          oldTeam = oldTeam[0];
+          newUsers = oldTeam.users.slice(0);
+        }
+        newTeams.push({
+          "name": teamName,
+          "users": newUsers
+        })
+      }
+      this.teams = newTeams;
+    } else {
+      // Update a single team
+      var maybeExistingTeam = this.teams.filter(t => t.name == team.name);
+      if (maybeExistingTeam.length === 1) {
+        maybeExistingTeam[0].users = team.users.slice(0);
+      } else {
+        this.teams.push({
+          "name": new String(team.name),
+          "users": team.users.slice(0)
+        });
+      }
+    }
+    self.setState({data: this});
+}
+
+function _updateRatings(rating) {
+  var ratingsForName = this.ratings[rating.name] || [];
+  // Check whether there is a rating for this date yet, if so update, else add new rating
+  var ratingsAtDate = ratingsForName.filter(r => r.date == rating.date);
+  if (ratingsAtDate.length === 1) {
+    var oldRating = ratingsAtDate[0];
+    oldRating.skill = rating.skill;
+    oldRating.challenge = rating.challenge;
+    oldRating.comment = new String(rating.comment);
+    notifier.notify("Rating updated!", NOTIFIER_OPTIONS);
+  } else {
+    ratingsForName.push({
+      "date": new String(rating.date),
+      "skill": rating.skill,
+      "challenge": rating.challenge,
+      "comment": new String(rating.comment)
+    });
+    notifier.notify("Rating created!", NOTIFIER_OPTIONS);
+  }
+  this.ratings[rating.name] = ratingsForName;
+  self.setState({data: this});
+}
+
 class FlowCharter extends React.Component {
   constructor() {
-   super();
-   var self = this;
-   this.state = {
-       content: "",
-       data: {
-           "version": "1.0.0",
-           "teams": [],
-           "ratings": {},
-           "updateTeams": function (team) {
-             var teams = this.teams;
-             if (Array.isArray(team)) {
-               // Update team list
-               var newTeams = [];
-               for (let i = 0; i < team.length; ++i) {
-                 var teamName = team[i];
-                 var oldTeam = teams.filter(t => t.name == teamName);
-                 var newUsers = [];
-                 if (oldTeam.length === 1) {
-                   oldTeam = oldTeam[0];
-                   newUsers = oldTeam.users.slice(0);
-                 }
-                 newTeams.push({
-                   "name": teamName,
-                   "users": newUsers
-                 })
-               }
-               this.teams = newTeams;
-             } else {
-               // Update a single team
-               var maybeExistingTeam = this.teams.filter(t => t.name == team.name);
-               if (maybeExistingTeam.length === 1) {
-                 maybeExistingTeam[0].users = team.users.slice(0);
-               } else {
-                 this.teams.push({
-                   "name": new String(team.name),
-                   "users": team.users.slice(0)
-                 });
-               }
-             }
-             self.setState({data: this});
-           },
-           "updateRatings": function (rating) {
-             var ratingsForName = this.ratings[rating.name] || [];
-             // Check whether there is a rating for this date yet, if so update, else add new rating
-             var ratingsAtDate = ratingsForName.filter(r => r.date == rating.date);
-             if (ratingsAtDate.length === 1) {
-               var oldRating = ratingsAtDate[0];
-               oldRating.skill = rating.skill;
-               oldRating.challenge = rating.challenge;
-               oldRating.comment = new String(rating.comment);
-             } else {
-               ratingsForName.push({
-                 "date": new String(rating.date),
-                 "skill": rating.skill,
-                 "challenge": rating.challenge,
-                 "comment": new String(rating.comment)
-               });
-             }
-             this.ratings[rating.name] = ratingsForName;
-             self.setState({data: this});
-           }
-       }
-   };
+     super();
+     self = this;
+     this.state = {
+         content: "",
+         data: {
+             "version": "1.0.0",
+             "teams": [],
+             "ratings": {},
+             "updateTeams": _updateTeams,
+             "updateRatings": _updateRatings
+         }
+     };
+     this.state.data.updateTeams = this.state.data.updateTeams.bind(this.state.data);
+     this.state.data.updateRatings = this.state.data.updateRatings.bind(this.state.data);
+     getData = function() {
+       return this.state.data;
+     }
+     getData = getData.bind(this);
+     setData = function(data) {
+       data["updateTeams"] = _updateTeams.bind(data);
+       data["updateRatings"] = _updateRatings.bind(data);
+       this.setState({data});
+     }
+     setData = setData.bind(this);
   }
   handleClick(toView) {
     this.setState({content: toView});
@@ -634,8 +664,179 @@ class FlowCharter extends React.Component {
 
 ReactDOM.render(<FlowCharter />, document.getElementById('root'));
 
-// function saveData() {
-//   jsonfile.writeFile(data_file, data, function (err) {
-//     console.error(err)
-//   })
-// }
+const template = [
+  {
+    label: 'File',
+    submenu: [
+      {
+        label: 'Open',
+        accelerator: 'CmdOrCtrl+O',
+        click: () => {
+            dialog.showOpenDialog(function(fileNames) {
+                if (fileNames === undefined) {
+                } else {
+                    dataFile = fileNames[0];
+                    var data = jsonfile.readFileSync(fileNames[0]);
+                    setData(data);
+                }
+            });
+        }
+      },
+      {
+        label: 'Save',
+        accelerator: 'CmdOrCtrl+S',
+        click: () => {
+          if (dataFile !== undefined) {
+            jsonfile.writeFileSync(dataFile, getData());
+            notifier.notify("Saved!", NOTIFIER_OPTIONS);
+          } else {
+            dialog.showSaveDialog(function(fileName) {
+                if (fileName === undefined) {
+                    return;
+                }
+
+                dataFile = fileName;
+                jsonfile.writeFileSync(fileName, getData());
+                notifier.notify("Saved!", NOTIFIER_OPTIONS);
+            });
+          }
+        }
+      },
+      {
+        label: 'Save as...',
+        accelerator: 'CmdOrCtrl+Shift+S',
+        click: () => {
+          dialog.showSaveDialog(function(fileName) {
+              if (fileName === undefined) {
+                  return;
+              }
+
+              dataFile = fileName;
+              jsonfile.writeFileSync(fileName, getData());
+              notifier.notify("Saved!", NOTIFIER_OPTIONS);
+          });
+        }
+      },
+      {
+        type: 'separator'
+      },
+      {
+        role: 'quit',
+      }
+    ]
+  },
+  {
+    label: 'Edit',
+    submenu: [
+      {
+        role: 'undo'
+      },
+      {
+        role: 'redo'
+      },
+      {
+        type: 'separator'
+      },
+      {
+        role: 'cut'
+      },
+      {
+        role: 'copy'
+      },
+      {
+        role: 'paste'
+      },
+      {
+        role: 'pasteandmatchstyle'
+      },
+      {
+        role: 'delete'
+      },
+      {
+        role: 'selectall'
+      }
+    ]
+  },
+  {
+    label: 'View',
+    submenu: [
+      {
+        role: 'togglefullscreen'
+      }
+    ]
+  },
+  {
+    role: 'window',
+    submenu: [
+      {
+        role: 'minimize'
+      },
+      {
+        role: 'close'
+      }
+    ]
+  }
+]
+
+if (process.platform === 'darwin') {
+  template.unshift({
+    label: app.getName(),
+    submenu: [
+      {
+        role: 'about'
+      },
+      {
+        type: 'separator'
+      },
+      {
+        role: 'services',
+        submenu: []
+      },
+      {
+        type: 'separator'
+      },
+      {
+        role: 'hide'
+      },
+      {
+        role: 'hideothers'
+      },
+      {
+        role: 'unhide'
+      },
+      {
+        type: 'separator'
+      },
+      {
+        role: 'quit'
+      }
+    ]
+  })
+  // Window menu.
+  template[3].submenu = [
+    {
+      label: 'Close',
+      accelerator: 'CmdOrCtrl+W',
+      role: 'close'
+    },
+    {
+      label: 'Minimize',
+      accelerator: 'CmdOrCtrl+M',
+      role: 'minimize'
+    },
+    {
+      label: 'Zoom',
+      role: 'zoom'
+    },
+    {
+      type: 'separator'
+    },
+    {
+      label: 'Bring All to Front',
+      role: 'front'
+    }
+  ]
+}
+
+const menu = appMenu.buildFromTemplate(template)
+appMenu.setApplicationMenu(menu)

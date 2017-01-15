@@ -1,1 +1,66 @@
-{"version":"1.0.0","teams":[{"name":"1","users":["der","die","das"]},{"name":"2","users":[]},{"name":"3","users":[]},{"name":"4","users":["foo","baz"]},{"name":"12","users":[]}],"ratings":{"der":[{"date":"2017-01-15","skill":0.5,"challenge":0.5,"comment":"der"}],"die":[{"date":"2017-01-15","skill":0.6,"challenge":0.55,"comment":"die"}],"dero":[{"date":"2017-01-15","skill":0.75,"challenge":0.6,"comment":"derp"}],"foo":[{"date":"2017-01-15","skill":1,"challenge":1,"comment":"yeahooodasdasd"}],"das":[{"date":"2017-01-15","skill":0.5,"challenge":0.5,"comment":"das"}],"baz":[{"date":"2017-01-15","skill":0.2,"challenge":0.2,"comment":"schlecht"}]}}
+{
+    "version": "1.0.0",
+    "teams": [{
+        "name": "core",
+        "users": ["Andi Awesome", "Bob Builder", "Cinthia Clue", "Dominic Donner"]
+    }, {
+        "name": "3rdparty",
+        "users": ["Emil Epic", "Franz Foo", "Gerda Gnu", "Hans Hausmeister"]
+    }, {
+        "name": "nextgen",
+        "users": ["Iris Ion", "Jonas Joyful", "Klaus Klopper", "Luigi Lamm"]
+    }],
+    "ratings": {
+        "Andi Awesome": [{
+            "date": "2017-01-15",
+            "skill": 1,
+            "challenge": 1,
+            "comment": "Totally awesome!"
+        }],
+        "Bob Builder": [{
+            "date": "2017-01-15",
+            "skill": 0.95,
+            "challenge": 0.95,
+            "comment": "Gets the job done really fast!"
+        }],
+        "Cinthia Clue": [{
+            "date": "2017-01-15",
+            "skill": 0.9,
+            "challenge": 0.9,
+            "comment": "Has very good suggestions!"
+        }],
+        "Dominic Donner": [{
+            "date": "2017-01-15",
+            "skill": 0.3,
+            "challenge": 0.3,
+            "comment": "Is too loud!"
+        }],
+        "Emil Epic": [{
+            "date": "2016-01-04",
+            "skill": 0.5,
+            "challenge": 0.5,
+            "comment": "Everyone has to start somewhere..."
+        }, {
+            "date": "2016-02-17",
+            "skill": 0.6,
+            "challenge": 0.6,
+            "comment": "...but is getting better..."
+        }, {
+            "date": "2016-09-16",
+            "skill": 0.6,
+            "challenge": 0.6,
+            "comment": "...and better..."
+        }, {
+            "date": "2017-01-05",
+            "skill": 1,
+            "challenge": 1,
+            "comment": "...until he reached his full powerlevel!"
+        }],
+        "Franz Foo": [{
+            "date": "2017-01-05",
+            "skill": 0.6,
+            "challenge": 0.4,
+            "comment": "Some team contrast!"
+        }]
+    }
+}

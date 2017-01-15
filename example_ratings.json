@@ -61,6 +61,22 @@
             "skill": 0.6,
             "challenge": 0.4,
             "comment": "Some team contrast!"
+        }],
+        "Jonas Joyful": [{
+            "date": "2017-01-15",
+            "skill": 0.5,
+            "challenge": 0.5,
+            "comment": "constant3"
+        }, {
+            "date": "2016-10-13",
+            "skill": 0.5,
+            "challenge": 0.5,
+            "comment": "constant2"
+        }, {
+            "date": "2016-07-06",
+            "skill": 0.5,
+            "challenge": 0.5,
+            "comment": "constant1"
         }]
     }
 }

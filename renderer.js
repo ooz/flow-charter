@@ -129,6 +129,7 @@ class Content extends React.Component {
           <p>Flow Charter lets you track the skill and challenge distributions of your teams. <br /> <br />
           v{packagejson.version} by Oliver Zscheyge</p>
           <h3>Instructions</h3>
+          <p>The "Cleanup*" button deletes all orphaned ratings, meaning all ratings of persons that are not listed in any team anymore.</p>
           <p>What is challenge? What is skill?</p>
           <ul>
             <li>TODO</li>
@@ -251,7 +252,7 @@ class DataInput extends React.Component {
       items.push(<h4 key="h4Comment" style={{marginTop: "40px"}}>Comment</h4>);
       items.push(<textarea key="commentInput" className="form-control" value={this.state.ratingComment} onChange={this.onCommentChanged.bind(this)} />);
       items.push(<button key="btnRate" className="btn btn-primary" onClick={this.addUserRating.bind(this)}>Rate</button>);
-      items.push(<button key="btnCleanup" className="btn btn-primary" onClick={this.cleanupRatings.bind(this)}>Cleanup*</button>);
+      items.push(<button key="btnCleanup" className="btn btn-danger" onClick={this.cleanupRatings.bind(this)}>Cleanup*</button>);
       return items;
   }
   render() {

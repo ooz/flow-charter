@@ -49,6 +49,19 @@ const usedYears = (data, returnUsedMonths = 0) => {
     return years;
 }
 
+const getTeamMembers = (data) => {
+  var users = [];
+  var teams = getTeams(data);
+  for (let i = 0; i < teams.length; ++i) {
+    let team = teams[i];
+    users.push(...team.users);
+  }
+
+  // Unique users only
+  users = [...(new Set(users))].sort();
+  return users;
+}
+
 const getUsers = (data) => {
   var ratings = data.ratings;
   var users = [];
@@ -214,6 +227,9 @@ class DataInput extends React.Component {
     }
     this.props.data.updateRatings(rating);
   }
+  cleanupRatings() {
+    this.props.data.cleanup();
+  }
   onSkillChanged(skill) {
     this.setState({ratingSkill: skill});
   }
@@ -235,6 +251,7 @@ class DataInput extends React.Component {
       items.push(<h4 key="h4Comment" style={{marginTop: "40px"}}>Comment</h4>);
       items.push(<textarea key="commentInput" className="form-control" value={this.state.ratingComment} onChange={this.onCommentChanged.bind(this)} />);
       items.push(<button key="btnRate" className="btn btn-primary" onClick={this.addUserRating.bind(this)}>Rate</button>);
+      items.push(<button key="btnCleanup" className="btn btn-primary" onClick={this.cleanupRatings.bind(this)}>Cleanup*</button>);
       return items;
   }
   render() {
@@ -624,6 +641,20 @@ function _updateRatings(rating) {
   self.setState({data: this});
 }
 
+function _cleanup() {
+  var users = getTeamMembers(this);
+  var ratings = this.ratings;
+  for (var name in ratings) {
+      if (ratings.hasOwnProperty(name)) {
+          if (users.indexOf(name) === -1) {
+              delete ratings[name];
+          }
+      }
+  }
+  self.setState({data: this});
+  notifier.notify("Deleted unused ratings!", NOTIFIER_OPTIONS);
+}
+
 class FlowCharter extends React.Component {
   constructor() {
      super();
@@ -635,11 +666,13 @@ class FlowCharter extends React.Component {
              "teams": [],
              "ratings": {},
              "updateTeams": _updateTeams,
-             "updateRatings": _updateRatings
+             "updateRatings": _updateRatings,
+             "cleanup": _cleanup
          }
      };
      this.state.data.updateTeams = this.state.data.updateTeams.bind(this.state.data);
      this.state.data.updateRatings = this.state.data.updateRatings.bind(this.state.data);
+     this.state.data.cleanup = this.state.data.cleanup.bind(this.state.data);
      getData = function() {
        return this.state.data;
      }
@@ -647,6 +680,7 @@ class FlowCharter extends React.Component {
      setData = function(data) {
        data["updateTeams"] = _updateTeams.bind(data);
        data["updateRatings"] = _updateRatings.bind(data);
+       data["cleanup"] = _cleanup.bind(data);
        this.setState({data});
      }
      setData = setData.bind(this);

@@ -109,7 +109,10 @@ class Content extends React.Component {
           v{packagejson.version} by Oliver Zscheyge</p>
           <h3>Instructions</h3>
           <p>What is challenge? What is skill?</p>
-          <ul><li>Foo</li><li>Bar</li></ul>
+          <ul>
+            <li>TODO</li>
+            <li>TODO</li>
+          </ul>
           <h3>Known Issues</h3>
           <ul>
             <li>The used chart package <code>chart.js</code> does not clean up data properly when creating a new chart (e.g. switching between teams or single team members). Thus prolonged use of this app will clog your system memory! :)<br /><br />

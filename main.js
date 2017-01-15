@@ -82,6 +82,13 @@ const template = [
         }
       },
       {
+        label: 'Save as...',
+        accelerator: 'CmdOrCtrl+Shift+S',
+        click: () => {
+            console.log('Save as Clicked');
+        }
+      },
+      {
         type: 'separator'
       },
       {

@@ -1,6 +1,6 @@
 # Flow Charter
 
-## To Use
+## Development
 
 ```bash
 # Install dependencies
@@ -8,6 +8,16 @@ npm install
 # Run the app
 npm start
 ```
-#### License
+
+## Packaging
+
+1. Install `electron-packager`
+2. Run make in the `flow-charter` directory:
+
+```bash
+make
+```
+
+## License
 
 Not licensed yet.

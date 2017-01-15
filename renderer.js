@@ -346,16 +346,25 @@ const CHART_OPTIONS = {
             var dataItems = data.datasets[tooltipItem.datasetIndex].data.filter((d) => (d.x == tooltipItem.xLabel && d.y == tooltipItem.yLabel));
             var comment = "";
             var date = ""
+            var lines = [];
             if (dataItems.length === 1) {
               comment = dataItems[0].comment;
               date = dataItems[0].date;
+            } else {
+              for (let i = 0; i < dataItems.length; ++i) {
+                var item = dataItems[i];
+                lines.push(item.date + ": " + item.comment);
+              }
             }
             var nameValues = data.datasets[tooltipItem.datasetIndex].label + ", S: " + tooltipItem.xLabel + ", C: " + tooltipItem.yLabel;
             if (date !== "") {
               nameValues = date + " " + data.datasets[tooltipItem.datasetIndex].label + ", S: " + tooltipItem.xLabel + ", C: " + tooltipItem.yLabel;
             }
             if (comment === "") {
-                return nameValues;
+              if (lines.length > 0) {
+                return [nameValues, ...lines];
+              }
+              return nameValues;
             } else {
                 return [nameValues, comment];
             }

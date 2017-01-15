@@ -1,6 +1,7 @@
 const electron = require('electron')
 // Module to control application life.
 const app = electron.app
+const appMenu = electron.Menu
 // Inter process communication
 const ipcMain = electron.ipcMain
 // Module to create native browser window.
@@ -36,6 +37,8 @@ function createWindow () {
   })
 }
 
+app.setName('Flow Charter');
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -60,3 +63,144 @@ app.on('activate', function () {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+const template = [
+  {
+    label: 'File',
+    submenu: [
+      {
+        label: 'Open',
+        accelerator: 'CmdOrCtrl+O',
+        click: () => {
+            console.log('Open Clicked');
+        }
+      },
+      {
+        label: 'Save',
+        accelerator: 'CmdOrCtrl+S',
+        click: () => {
+            console.log('Save Clicked');
+        }
+      },
+      {
+        type: 'separator'
+      },
+      {
+        role: 'quit',
+      }
+    ]
+  },
+  {
+    label: 'Edit',
+    submenu: [
+      {
+        role: 'undo'
+      },
+      {
+        role: 'redo'
+      },
+      {
+        type: 'separator'
+      },
+      {
+        role: 'cut'
+      },
+      {
+        role: 'copy'
+      },
+      {
+        role: 'paste'
+      },
+      {
+        role: 'pasteandmatchstyle'
+      },
+      {
+        role: 'delete'
+      },
+      {
+        role: 'selectall'
+      }
+    ]
+  },
+  {
+    label: 'View',
+    submenu: [
+      {
+        role: 'togglefullscreen'
+      }
+    ]
+  },
+  {
+    role: 'window',
+    submenu: [
+      {
+        role: 'minimize'
+      },
+      {
+        role: 'close'
+      }
+    ]
+  }
+]
+
+if (process.platform === 'darwin') {
+  template.unshift({
+    label: app.getName(),
+    submenu: [
+      {
+        role: 'about'
+      },
+      {
+        type: 'separator'
+      },
+      {
+        role: 'services',
+        submenu: []
+      },
+      {
+        type: 'separator'
+      },
+      {
+        role: 'hide'
+      },
+      {
+        role: 'hideothers'
+      },
+      {
+        role: 'unhide'
+      },
+      {
+        type: 'separator'
+      },
+      {
+        role: 'quit'
+      }
+    ]
+  })
+  // Window menu.
+  template[3].submenu = [
+    {
+      label: 'Close',
+      accelerator: 'CmdOrCtrl+W',
+      role: 'close'
+    },
+    {
+      label: 'Minimize',
+      accelerator: 'CmdOrCtrl+M',
+      role: 'minimize'
+    },
+    {
+      label: 'Zoom',
+      role: 'zoom'
+    },
+    {
+      type: 'separator'
+    },
+    {
+      label: 'Bring All to Front',
+      role: 'front'
+    }
+  ]
+}
+
+const menu = appMenu.buildFromTemplate(template)
+appMenu.setApplicationMenu(menu)

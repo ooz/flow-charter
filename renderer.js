@@ -2,6 +2,9 @@
 // be executed in the renderer process for that window.
 // All of the Node.js APIs are available in this process.
 
+// const {remote} = require('electron')
+// const {Menu, MenuItem} = remote
+
 const React = require('react');
 const ReactDOM = require('react-dom');
 const ChartJS = require('chart.js');
@@ -20,79 +23,10 @@ const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Se
 const COLORS = ["#FFC0CB", "#800080", "#DC143C", "#FFA500", "#FFFF00", "#ADFF2F", "#00FFFF", "#000080", "#A0522D", "#FFFAFA", "#808080"]
 ChartJS.defaults.global.defaultFontColor = "#000000";
 
-let data = {
-    "version": "1.0.0",
-    "users": [
-        "A Foo",
-        "O Bar",
-        "F Baz",
-        "M Bob"
-    ],
-    "teams": [{
-        "name": "foobars",
-        "users": [
-            "A Foo",
-            "O Bar"
-        ]
-    }, {
-        "name": "bobfoos",
-        "users": [
-            "F Baz",
-            "M Bob"
-        ]
-    }],
-    "ratings": {
-        "O Bar": [{
-            "date": "2016-01-12",
-            "skill": 0.5,
-            "challenge": 0.5,
-            "comment": "Test"
-        }, {
-            "date": "2016-12-13",
-            "skill": 0.7,
-            "challenge": 0.6,
-            "comment": "Test two"
-        }],
-        "A Foo": [{
-            "date": "2016-12-12",
-            "skill": 0.5,
-            "challenge": 0.5,
-            "comment": "Test2"
-        }, {
-            "date": "2016-12-13",
-            "skill": 0.9,
-            "challenge": 0.9,
-            "comment": "Test two2"
-        }],
-        "F Baz": [{
-            "date": "2016-12-12",
-            "skill": 0.5,
-            "challenge": 0.5,
-            "comment": "Test"
-        }, {
-            "date": "2016-12-13",
-            "skill": 0.7,
-            "challenge": 0.6,
-            "comment": "Test two"
-        }],
-        "M Bob": [{
-            "date": "2015-12-12",
-            "skill": 0.6,
-            "challenge": 0.6,
-            "comment": "Test2"
-        }, {
-            "date": "2016-12-13",
-            "skill": 0.9,
-            "challenge": 0.9,
-            "comment": "Test two2"
-        }]
-    }
-}
-
 let data_file = "flow_charter_data.json"
 
-const usedYears = (returnUsedMonths = 0) => {
-    var ratings = data.ratings;
+const usedYears = (data, returnUsedMonths = 0) => {
+    var ratings = getRatings(data);
     var years = [];
     for (var name in ratings) {
         if (ratings.hasOwnProperty(name)) {
@@ -105,6 +39,35 @@ const usedYears = (returnUsedMonths = 0) => {
     // Unique years, then sort them
     years = [...(new Set(years))].sort();
     return years;
+}
+
+const getUsers = (data) => {
+  var ratings = data.ratings;
+  var users = [];
+  for (var name in ratings) {
+    if (ratings.hasOwnProperty(name)) {
+      users.push(name);
+    }
+  }
+  users = users.sort();
+  return users;
+}
+
+const getTeams = (data) => {
+  return data.teams;
+}
+
+const getTeamNames = (data) => {
+  return getTeams(data).map(team => team.name);
+}
+
+const getRatings = (data, user="", date="") => {
+  if (user != "") {
+    var filtered = data.ratings[user] || [];
+    filtered = filtered.filter(rating => rating.date == date);
+    return filtered;
+  }
+  return data.ratings;
 }
 
 class NavItem extends React.Component {
@@ -135,9 +98,9 @@ class Navigation extends React.Component {
 class Content extends React.Component {
   render() {
     if (this.props.content === "Diagram") {
-      return (<Diagram />);
+      return (<Diagram data={this.props.data} />);
     } else if (this.props.content === "Data") {
-      return (<DataInput />);
+      return (<DataInput data={this.props.data} />);
     } else {
       return (
         <div>
@@ -163,8 +126,7 @@ class DataInput extends React.Component {
   constructor() {
       super()
       this.state = {
-          teams: [],
-          ratings: {},
+          // teams: [],
           ratingUser: "",
           ratingDate: moment(),
           ratingSkill: 0.5,
@@ -173,28 +135,14 @@ class DataInput extends React.Component {
       }
   }
   onTeamsChange(teams) {
-      this.setState({teams});
-      for (let i = 0; i < teams.length; ++i) {
-          var teamName = teams[i];
-          if (typeof(this.state["_" + teamName]) === 'undefined') {
-              this.setState({["_" + teamName]: []});
-          }
-      }
-
-      // Cleanup deleted teams
-      for (var team in this.state) {
-          if (this.state.hasOwnProperty(team) && team.startsWith("_")) {
-              if (!teams.map((t) => {return "_" + t}).includes(team)) {
-                  this.setState({[team] : undefined});
-              }
-          }
-      }
+      this.props.data.updateTeams(teams);
   }
   onTeamChange(teamName) {
       return (members) => {
-        if (typeof(this.state["_" + teamName]) !== 'undefined') {
-          this.setState({["_" + teamName]: members});
-        }
+        this.props.data.updateTeams({
+          "name": teamName,
+          "users": members
+        });
       }
   }
   autosizingRenderInput (props) {
@@ -206,34 +154,54 @@ class DataInput extends React.Component {
   buildTeamInputs() {
       let items = []
       var props = {className: 'react-tagsinput-input', placeholder: '+ member'};
-      for (let i = 0; i < this.state.teams.length; ++i) {
-        var teamName = this.state.teams[i];
+      var teams = getTeams(this.props.data);
+      for (let i = 0; i < teams.length; ++i) {
+        var team = teams[i];
+        var teamName = team.name;
         items.push(<h4 key={"h4" + teamName}>{teamName}</h4>);
-        if (typeof(this.state["_" + teamName]) !== 'undefined') {
-          items.push(<TagsInput key={"teamInput" + teamName} value={this.state["_" + teamName]} onChange={this.onTeamChange(teamName).bind(this)} maxTags={COLORS.length} inputProps={props} onlyUnique />);
-        }
+        items.push(<TagsInput key={"teamInput" + teamName} value={team.users} onChange={this.onTeamChange(teamName).bind(this)} maxTags={COLORS.length} inputProps={props} onlyUnique />);
       }
       return items;
   }
   onDateChanged(date) {
       this.setState({ratingDate: date});
+      this.checkForExistingRating(this.state.ratingUser, date);
   }
-  onUserChanged(event, { newValue }) {
-      console.log("New member value: " + newValue);
+  onUserChanged(newValue) {
+      this.setState({ratingUser: newValue});
+      this.checkForExistingRating(newValue, this.state.ratingDate);
+  }
+  checkForExistingRating(user, date) {
+      var maybeExistingRating = getRatings(this.props.data, user, date.format("YYYY-MM-DD"));
+      if (maybeExistingRating.length === 1) {
+        var rating = maybeExistingRating[0];
+        this.setState({
+          ratingSkill: rating.skill,
+          ratingChallenge: rating.challenge,
+          ratingComment: rating.comment
+        });
+      }
   }
   getUserSuggestions() {
       var users = []
-      for (var team in this.state) {
-          if (this.state.hasOwnProperty(team) && team.startsWith("_")) {
-              users.push(...this.state[team]);
-          }
+      var teams = getTeams(this.props.data);
+      for (let i = 0; i < teams.length; ++i) {
+        var team = teams[i];
+        users.push(...team.users);
       }
       // Unique users
       users = [...(new Set(users))].sort();
       return users;
   }
   addUserRating() {
-    console.log("Rating added!");
+    var rating = {
+      "name": this.state.ratingUser,
+      "date": this.state.ratingDate.format("YYYY-MM-DD"),
+      "skill": this.state.ratingSkill,
+      "challenge": this.state.ratingChallenge,
+      "comment": this.state.ratingComment
+    }
+    this.props.data.updateRatings(rating);
   }
   onSkillChanged(skill) {
     this.setState({ratingSkill: skill});
@@ -241,9 +209,12 @@ class DataInput extends React.Component {
   onChallengeChanged(challenge) {
     this.setState({ratingChallenge: challenge});
   }
+  onCommentChanged(event) {
+    this.setState({ratingComment: event.target.value});
+  }
   buildRatingInputs() {
       let items = []
-      items.push(<UserInput key="userInput" suggestions={this.getUserSuggestions()} />)
+      items.push(<UserInput key="userInput" suggestions={this.getUserSuggestions()} onChange={this.onUserChanged.bind(this)} />)
       // items.push(<UserInput key="userInput" suggestions={["Oliver", "Olaf", "Foo", "Friedrich"]} onChange={this.onUserChanged.bind(this)} />)
       items.push(<DatePicker key="datePicker" className="form-control" dateFormat="YYYY/MM/DD" showYearDropdown showMonthDropdown locale="en-gb" selected={this.state.ratingDate} onChange={this.onDateChanged.bind(this)} />);
       items.push(<h4 key="h4Skill" style={{marginTop: "40px"}}>Skill</h4>);
@@ -251,7 +222,7 @@ class DataInput extends React.Component {
       items.push(<h4 key="h4Challenge" style={{marginTop: "40px"}}>Challenge</h4>);
       items.push(<Slider key="sliderChallenge" min={0.0} max={1.0} step={0.05} value={this.state.ratingChallenge} marks={RATING_MARKS} onChange={this.onChallengeChanged.bind(this)} />);
       items.push(<h4 key="h4Comment" style={{marginTop: "40px"}}>Comment</h4>);
-      items.push(<textarea key="commentInput" className="form-control" />);
+      items.push(<textarea key="commentInput" className="form-control" value={this.state.ratingComment} onChange={this.onCommentChanged.bind(this)} />);
       items.push(<button key="btnRate" className="btn btn-primary" onClick={this.addUserRating.bind(this)}>Rate</button>);
       return items;
   }
@@ -264,7 +235,7 @@ class DataInput extends React.Component {
         { this.buildRatingInputs() }
         <hr />
         <h3>Teams</h3>
-        <TagsInput key="teamsInput" value={this.state.teams} onChange={this.onTeamsChange.bind(this)} inputProps={props} onlyUnique />
+        <TagsInput key="teamsInput" value={getTeamNames(this.props.data)} onChange={this.onTeamsChange.bind(this)} inputProps={props} onlyUnique />
         { this.buildTeamInputs() }
       </div>
     );
@@ -300,6 +271,7 @@ class UserInput extends React.Component {
   }
   onUserChanged(event, { newValue }) {
     this.setState({ value: newValue });
+    this.props.onChange(newValue);
   }
   render() {
     const inputProps = {
@@ -433,7 +405,9 @@ class Diagram extends React.Component {
         if (year !== "Latest" && year !== "All") {
             filtered = filtered.filter((d) => d.date.startsWith(year))
         } else if (year === "Latest") {
-            filtered = [filtered.reduce((a, b) => {return (a <= b) ? b : a})]
+          if (filtered.length >= 2) {
+            filtered = [filtered.reduce((a, b) => {return (a.date <= b.date) ? b : a})]
+          }
         }
         if (month !== "All") {
             filtered = filtered.filter((d) => d.date.split("-")[1] == MONTH_NAMES.indexOf(month) + 1)
@@ -441,11 +415,12 @@ class Diagram extends React.Component {
         return filtered;
     }
     buildDataPoints(teamName, userColor) {
-      var teams = data.teams;
-      var users = data.users;
+      var teams = getTeams(this.props.data);
+      var users = getUsers(this.props.data);
+      var ratings = getRatings(this.props.data);
       var month = this.state.month.replace("month", "");
       var year = this.state.year.replace("year", "");
-      var team = teams.filter((t) => t["name"] === teamName);
+      var team = teams.filter((t) => t.name === teamName);
       var user = users.filter((u) => u === teamName);
       var dataPoints = {};
       if (team.length === 1) {
@@ -453,7 +428,7 @@ class Diagram extends React.Component {
           var datasets = [];
           for (let i = 0; i < members.length; ++i) {
             var memberName = members[i];
-            var memberRatings = data.ratings[memberName];
+            var memberRatings = ratings[memberName] || [];
             var memberData = memberRatings.map(r => {return {x: r.skill, y: r.challenge, r: 10, comment: r.comment, date: r.date}});
             memberData = this.filterByTime(memberData, year, month);
             var color = COLORS[i % COLORS.length];
@@ -465,7 +440,7 @@ class Diagram extends React.Component {
       } else if (user.length === 1) {
         var userName = user[0];
         var datasets = [];
-        var memberRatings = data.ratings[userName];
+        var memberRatings = ratings[userName] || [];
         var memberData = memberRatings.map(r => {return {x: r.skill, y: r.challenge, r: 10, comment: r.comment, date: r.date}});
         memberData = this.filterByTime(memberData, year, month);
         var color = COLORS[0];
@@ -480,7 +455,10 @@ class Diagram extends React.Component {
       return dataPoints;
     }
     renderChart(teamName) {
-        var dataPoints = this.buildDataPoints(teamName, this.state.userColor);
+        var dataPoints = []
+        if (teamName !== "") {
+          dataPoints = this.buildDataPoints(teamName, this.state.userColor);
+        }
 
         var ctx = this.cleanupCanvas();
 
@@ -497,16 +475,17 @@ class Diagram extends React.Component {
     }
     buildTeamOptions() {
         let items = [];
+        var teams = getTeams(this.props.data);
         items.push(<option key="" value="">-</option>);
-        for (let i = 0; i < data["teams"].length; ++i) {
-            let teamName = data["teams"][i]["name"];
+        for (let i = 0; i < teams.length; ++i) {
+            let teamName = teams[i]["name"];
             items.push(<option key={teamName} value={teamName}>{teamName}</option>);
         }
         return items;
     }
     buildYearOptions(returnUsedMonths = 0) {
       let items = [];
-      var years = usedYears(returnUsedMonths);
+      var years = usedYears(this.props.data, returnUsedMonths);
       if (returnUsedMonths) years = years.map((month_nr) => MONTH_NAMES[Number(month_nr) - 1]);
       if (returnUsedMonths === 0) {
         years.unshift("All");
@@ -576,22 +555,84 @@ class Diagram extends React.Component {
 class FlowCharter extends React.Component {
   constructor() {
    super();
+   var self = this;
    this.state = {
-       content: ""
+       content: "",
+       data: {
+           "version": "1.0.0",
+           "teams": [],
+           "ratings": {},
+           "updateTeams": function (team) {
+             var teams = this.teams;
+             if (Array.isArray(team)) {
+               // Update team list
+               var newTeams = [];
+               for (let i = 0; i < team.length; ++i) {
+                 var teamName = team[i];
+                 var oldTeam = teams.filter(t => t.name == teamName);
+                 var newUsers = [];
+                 if (oldTeam.length === 1) {
+                   oldTeam = oldTeam[0];
+                   newUsers = oldTeam.users.slice(0);
+                 }
+                 newTeams.push({
+                   "name": teamName,
+                   "users": newUsers
+                 })
+               }
+               this.teams = newTeams;
+             } else {
+               // Update a single team
+               var maybeExistingTeam = this.teams.filter(t => t.name == team.name);
+               if (maybeExistingTeam.length === 1) {
+                 maybeExistingTeam[0].users = team.users.slice(0);
+               } else {
+                 this.teams.push({
+                   "name": new String(team.name),
+                   "users": team.users.slice(0)
+                 });
+               }
+             }
+             self.setState({data: this});
+           },
+           "updateRatings": function (rating) {
+             var ratingsForName = this.ratings[rating.name] || [];
+             // Check whether there is a rating for this date yet, if so update, else add new rating
+             var ratingsAtDate = ratingsForName.filter(r => r.date == rating.date);
+             if (ratingsAtDate.length === 1) {
+               var oldRating = ratingsAtDate[0];
+               oldRating.skill = rating.skill;
+               oldRating.challenge = rating.challenge;
+               oldRating.comment = new String(rating.comment);
+             } else {
+               ratingsForName.push({
+                 "date": new String(rating.date),
+                 "skill": rating.skill,
+                 "challenge": rating.challenge,
+                 "comment": new String(rating.comment)
+               });
+             }
+             this.ratings[rating.name] = ratingsForName;
+             self.setState({data: this});
+           }
+       }
    };
   }
   handleClick(toView) {
     this.setState({content: toView});
   }
   render() {
-    return (<div className="container"><Navigation clickHandler={this.handleClick.bind(this)} /><Content content={this.state.content} /></div>);
+    return (<div className="container">
+              <Navigation clickHandler={this.handleClick.bind(this)} />
+              <Content content={this.state.content} data={this.state.data} />
+            </div>);
   }
 }
 
 ReactDOM.render(<FlowCharter />, document.getElementById('root'));
 
-function saveData() {
-  jsonfile.writeFile(data_file, data, function (err) {
-    console.error(err)
-  })
-}
+// function saveData() {
+//   jsonfile.writeFile(data_file, data, function (err) {
+//     console.error(err)
+//   })
+// }

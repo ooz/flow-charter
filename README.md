@@ -1,5 +1,9 @@
 # Flow Charter
 
+![Flow Charter: Data Input View](screenshots/flow_charter00.png)
+![Flow Charter: Team View](screenshots/flow_charter01.png)
+![Flow Charter: Single Person View](screenshots/flow_charter02.png)
+
 ## Development
 
 ```bash

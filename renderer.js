@@ -4,6 +4,7 @@
 
 // Build the menu
 const remote = require('electron').remote;
+const app = remote.app;
 const appMenu = remote.Menu;
 const dialog = remote.dialog;
 // const {Menu, MenuItem} = remote

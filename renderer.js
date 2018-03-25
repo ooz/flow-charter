@@ -710,7 +710,6 @@ class FlowCharter extends React.Component {
             </div>);
   }
 }
-
 ReactDOM.render(<FlowCharter />, document.getElementById('root'));
 
 const template = [
@@ -862,7 +861,7 @@ if (process.platform === 'darwin') {
     ]
   })
   // Window menu.
-  template[3].submenu = [
+  template[4].submenu = [
     {
       label: 'Close',
       accelerator: 'CmdOrCtrl+W',

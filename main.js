@@ -1,7 +1,6 @@
 const electron = require('electron')
 // Module to control application life.
 const app = electron.app
-const appMenu = electron.Menu
 // Inter process communication
 const ipcMain = electron.ipcMain
 // Module to create native browser window.
@@ -63,10 +62,3 @@ app.on('activate', function () {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
-let menu = appMenu.buildFromTemplate([
-  {
-    label: 'File',
-    submenu: []
-  }
-])
-appMenu.setApplicationMenu(menu)

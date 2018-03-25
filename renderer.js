@@ -562,17 +562,22 @@ class Diagram extends React.Component {
     }
     render() {
         return (
-          < div > < h2 > Diagram < /h2><div className="form-group"><label htmlFor="teams" className="control-label">Team: </label > < select id = "teams"
+          <div>
+            <h2>Diagram</h2>
+            <div className="form-group">
+            <label htmlFor="teams" className="control-label">Team: </label>
+            <select id = "teams"
           name = "teams"
           className = "form-control"
           onChange={(e) => this.onDropdownSelected(e)}> {
               this.buildTeamOptions()
-          } < /select></div > < canvas id = "chart_container"
+          } </select></div>
+          <canvas id = "chart_container"
           width = "400"
           height = "400"
           style = {
               CHART_STYLE
-          } > < /canvas>
+          } > </canvas>
             <div className="container">
               <div className="row">
                 <div className=".col-md-12 btn-group" data-toggle="buttons">

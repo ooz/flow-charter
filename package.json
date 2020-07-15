@@ -14,15 +14,31 @@
   "author": "Oliver Zscheyge",
   "license": "MIT",
   "dependencies": {
-    "electron": "^9.1.0",
-    "jsonfile": "^2.4.0",
-    "react": "^15.4.0",
-    "react-dom": "^15.4.0",
-    "react-tagsinput": "^3.14.0",
-    "react-datepicker": "^0.39.0",
-    "react-autosuggest": "^7.0.2",
-    "rc-slider": "^5.4.0",
     "chart.js": "^2.4.0",
-    "electron-notifications": "^0.1.5"
+    "electron": "^9.1.0",
+    "electron-notifications": "^0.1.5",
+    "jsonfile": "^2.4.0",
+    "rc-slider": "^5.4.0",
+    "react": "^15.4.0",
+    "react-autosuggest": "^7.0.2",
+    "react-datepicker": "^0.39.0",
+    "react-dom": "^15.4.0",
+    "react-tagsinput": "^3.14.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.10.5",
+    "@babel/preset-env": "^7.10.4",
+    "@babel/preset-react": "^7.10.4",
+    "babel-core": "^6.26.3",
+    "babelify": "^10.0.0"
+  },
+  "babel": {
+    "presets": [
+      "@babel/preset-env",
+      "@babel/preset-react"
+    ],
+    "plugins": [
+      "@babel/plugin-proposal-class-properties"
+    ]
   }
 }

@@ -14,7 +14,7 @@
   "author": "Oliver Zscheyge",
   "license": "MIT",
   "dependencies": {
-    "electron": "^1.4.1",
+    "electron": "^9.1.0",
     "jsonfile": "^2.4.0",
     "react": "^15.4.0",
     "react-dom": "^15.4.0",

@@ -16,7 +16,6 @@
   "dependencies": {
     "chart.js": "^2.4.0",
     "electron": "^9.1.0",
-    "electron-notifications": "^0.1.5",
     "jsonfile": "^2.4.0",
     "rc-slider": "^5.4.0",
     "react": "^15.4.0",

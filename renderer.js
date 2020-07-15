@@ -20,7 +20,11 @@ const DatePicker = require('react-datepicker');
 import Autosuggest from 'react-autosuggest';
 const Slider = require('rc-slider');
 
-const notifier = require('electron-notifications')
+const notifier = {
+  notify: function(text) {
+    let myNotification = new Notification(text)
+  }
+}
 
 const packagejson = require('./package.json');
 
@@ -28,9 +32,6 @@ const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Se
 //let COLORS = ["Pink", "Purple", "Crimson", "Orange", "Yellow", "GreenYellow", "Cyan", "Navy", "Sienna", "Snow", "Gray"]
 const COLORS = ["#FFC0CB", "#800080", "#DC143C", "#FFA500", "#FFFF00", "#ADFF2F", "#00FFFF", "#000080", "#A0522D", "#FFFAFA", "#808080"]
 ChartJS.defaults.global.defaultFontColor = "#000000";
-
-const NOTIFIER_OPTIONS = {
-}
 
 let dataFile;
 
@@ -643,7 +644,7 @@ function _updateRatings(rating) {
     oldRating.skill = rating.skill;
     oldRating.challenge = rating.challenge;
     oldRating.comment = new String(rating.comment);
-    notifier.notify("Rating updated!", NOTIFIER_OPTIONS);
+    notifier.notify("Rating updated!");
   } else {
     ratingsForName.push({
       "date": new String(rating.date),
@@ -651,7 +652,7 @@ function _updateRatings(rating) {
       "challenge": rating.challenge,
       "comment": new String(rating.comment)
     });
-    notifier.notify("Rating created!", NOTIFIER_OPTIONS);
+    notifier.notify("Rating created!");
   }
   this.ratings[rating.name] = ratingsForName;
   self.setState({data: this});
@@ -668,7 +669,7 @@ function _cleanup() {
       }
   }
   self.setState({data: this});
-  notifier.notify("Deleted unused ratings!", NOTIFIER_OPTIONS);
+  notifier.notify("Deleted unused ratings!");
 }
 
 class FlowCharter extends React.Component {
@@ -737,7 +738,7 @@ const template = [
         click: () => {
           if (dataFile !== undefined) {
             jsonfile.writeFileSync(dataFile, getData());
-            notifier.notify("Saved!", NOTIFIER_OPTIONS);
+            notifier.notify("Saved!");
           } else {
             dialog.showSaveDialog(function(fileName) {
                 if (fileName === undefined) {
@@ -746,7 +747,7 @@ const template = [
 
                 dataFile = fileName;
                 jsonfile.writeFileSync(fileName, getData());
-                notifier.notify("Saved!", NOTIFIER_OPTIONS);
+                notifier.notify("Saved!");
             });
           }
         }
@@ -762,7 +763,7 @@ const template = [
 
               dataFile = fileName;
               jsonfile.writeFileSync(fileName, getData());
-              notifier.notify("Saved!", NOTIFIER_OPTIONS);
+              notifier.notify("Saved!");
           });
         }
       },

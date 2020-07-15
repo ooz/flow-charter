@@ -1,7 +1,7 @@
 {
   "name": "flow-charter",
   "productName": "Flow Charter",
-  "version": "1.0.2",
+  "version": "1.0.1",
   "description": "View and manage Flow Charts",
   "main": "main.js",
   "scripts": {
@@ -16,6 +16,7 @@
   "dependencies": {
     "chart.js": "^2.4.0",
     "electron": "^9.1.0",
+    "electron-notifications": "^1.0.0",
     "jsonfile": "^2.4.0",
     "rc-slider": "^5.4.0",
     "react": "^15.4.0",

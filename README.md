@@ -9,13 +9,19 @@
 ```bash
 # Install dependencies
 npm install
+
 # Run the app
-npm start
+make dev
 ```
 
 ## Packaging
 
 1. Install `electron-packager`
+
+```bash
+npm install -g electron-packager
+```
+
 2. Run make in the `flow-charter` directory:
 
 ```bash
